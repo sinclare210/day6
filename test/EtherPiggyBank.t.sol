@@ -203,7 +203,20 @@ contract EtherPiggyBankTest is Test {
         vm.stopPrank();
     }
 
-    function testWithdrawSucceedsAndReducesBalance() public {}
+    function testWithdrawSucceedsAndReducesBalance() public {
+        address sinc = address(0x1);
+        vm.deal(sinc, 2 ether);
+
+        etherPiggyBank.addMember(sinc);
+
+        vm.startPrank(sinc);
+        etherPiggyBank.deposit{value: 1 ether}();
+
+        etherPiggyBank.withdraw(0.5 ether);
+        assertEq(etherPiggyBank.getBalanceByUser(), 0.5 ether);
+
+        vm.stopPrank();
+    }
 
     function testWithdrawRevertsIfTransferFails() public {}
 }
