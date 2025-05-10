@@ -22,6 +22,11 @@ contract EtherPiggyBank {
         _;
     }
 
+    modifier onlyRegisteredMember() {
+        require(registeredUsers[msg.sender], "Must be a member");
+        _;
+    }
+
     function deposit () public payable {
         require (msg.value > 0, "Amount must be greater than zero");
         
