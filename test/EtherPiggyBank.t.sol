@@ -164,9 +164,29 @@ contract EtherPiggyBankTest is Test {
         etherPiggyBank.getBalanceByManager(zero);
     }
 
-    function testWithdrawFailsIfNotRegistered() public {}
+    function testWithdrawFailsIfNotRegistered() public {
+        address sinc = address(0x1);
 
-    function testWithdrawFailsIfAmountZero() public {}
+        vm.startPrank(sinc);
+
+        vm.expectRevert(EtherPiggyBank.NotAMember.selector);
+        etherPiggyBank.withdraw(1 ether);
+
+        vm.stopPrank();
+    }
+
+    function testWithdrawFailsIfAmountZero() public {
+        address sinc = address(0x1);
+
+        etherPiggyBank.addMember(sinc);
+
+        vm.startPrank(sinc);
+
+        vm.expectRevert(EtherPiggyBank.AmountMustBeGreaterThanZero.selector);
+        etherPiggyBank.withdraw(0 ether);
+
+        vm.stopPrank();
+    }
 
     function testWithdrawFailsIfAmountExceedsBalance() public {}
 
