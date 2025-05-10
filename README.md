@@ -1,3 +1,4 @@
+
 # EtherPiggyBank Smart Contract
 
 ## Overview
@@ -69,6 +70,7 @@ function testDepositFailsIfNotRegistered() public {
     etherPiggyBank.deposit{value: 1 ether}();
     vm.stopPrank();
 }
+```
 
 ## Functionality
 
@@ -98,6 +100,7 @@ function testDepositFailsIfNotRegistered() public {
 #### Example usage of custom errors:
 ```solidity
 if (amount == 0) revert AmountMustBeGreaterThanZero();
+```
 
 ## Security
 The contract is designed with several security features:
