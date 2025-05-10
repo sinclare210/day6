@@ -52,11 +52,6 @@ contract EtherPiggyBank {
         return members;
     }
 
-    function depositAmount() public payable onlyRegisteredMember {
-        if (msg.value == 0) revert AmountMustBeGreaterThanZero();
-        balance[msg.sender] += msg.value;
-    }
-
     function getBalanceByManager(address _member) public view onlyBankManager returns (uint256) {
         if (_member == address(0)) revert ZeroAddressNotAllowed();
         return balance[_member];

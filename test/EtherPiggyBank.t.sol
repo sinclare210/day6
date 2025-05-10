@@ -60,23 +60,109 @@ contract EtherPiggyBankTest is Test {
         vm.stopPrank();
     }
 
-    function testDepositFailsIfNotRegistered() public {}
+    function testDepositFailsIfNotRegistered() public {
+        address sinc = address(0x1);
+        vm.deal(sinc, 2 ether);
 
-    function testDepositFailsIfZeroAmount() public {}
+        vm.startPrank(sinc);
+        vm.expectRevert(EtherPiggyBank.NotAMember.selector);
+        etherPiggyBank.deposit{value: 1 ether}();
+        console.log(sinc.balance);
+        vm.stopPrank();
+    }
 
-    function testDepositIncreasesBalanceCorrectly() public {}
+    function testDepositFailsIfZeroAmount() public {
+        address sinc = address(0x1);
 
-    function testDepositAmountWorksSameAsDeposit() public {}
+        etherPiggyBank.addMember(sinc);
 
-    function testGetMembersReturnsCorrectList() public {}
+        vm.startPrank(sinc);
+        vm.expectRevert(EtherPiggyBank.AmountMustBeGreaterThanZero.selector);
+        etherPiggyBank.deposit{value: 0 ether}();
+        console.log(sinc.balance);
+        vm.stopPrank();
+    }
 
-    function testGetBalanceByUserReturnsCorrectBalance() public {}
+    function testDepositIncreasesBalanceCorrectly() public {
+        address sinc = address(0x1);
+        vm.deal(sinc, 2 ether);
 
-    function testGetBalanceByManagerReturnsCorrectBalance() public {}
+        etherPiggyBank.addMember(sinc);
 
-    function testGetBalanceByManagerFailsForNonManager() public {}
+        vm.startPrank(sinc);
 
-    function testGetBalanceByManagerFailsIfZeroAddress() public {}
+        etherPiggyBank.deposit{value: 1 ether}();
+        console.log(sinc.balance);
+        assertEq(etherPiggyBank.getBalanceByUser(), 1 ether);
+        vm.stopPrank();
+    }
+
+    function testGetMembersReturnsCorrectList() public {
+        address sinc = address(0x1);
+        address sinc1 = address(0x2);
+        address sinc2 = address(0x3);
+        address sinc3 = address(0x4);
+
+        etherPiggyBank.addMember(sinc);
+        etherPiggyBank.addMember(sinc1);
+        etherPiggyBank.addMember(sinc2);
+        etherPiggyBank.addMember(sinc3);
+
+        address[] memory members = etherPiggyBank.getMembers();
+        assertEq(members[1], sinc);
+        assertEq(members[2], sinc1);
+        assertEq(members[3], sinc2);
+        assertEq(members[4], sinc3);
+    }
+
+    function testGetBalanceByUserReturnsCorrectBalance() public {
+        address sinc = address(0x1);
+        vm.deal(sinc, 2 ether);
+
+        etherPiggyBank.addMember(sinc);
+
+        vm.startPrank(sinc);
+
+        etherPiggyBank.deposit{value: 1 ether}();
+        console.log(sinc.balance);
+        assertEq(etherPiggyBank.getBalanceByUser(), 1 ether);
+
+        vm.stopPrank();
+    }
+
+    function testGetBalanceByManagerReturnsCorrectBalance() public {
+        address sinc = address(0x1);
+        vm.deal(sinc, 2 ether);
+
+        etherPiggyBank.addMember(sinc);
+
+        vm.startPrank(sinc);
+
+        etherPiggyBank.deposit{value: 1 ether}();
+        vm.stopPrank();
+        assertEq(etherPiggyBank.getBalanceByManager(sinc), 1 ether);
+    }
+
+    function testGetBalanceByManagerFailsForNonManager() public {
+        address sinc = address(0x1);
+        vm.deal(sinc, 2 ether);
+
+        etherPiggyBank.addMember(sinc);
+
+        vm.startPrank(sinc);
+
+        etherPiggyBank.deposit{value: 1 ether}();
+        vm.expectRevert(EtherPiggyBank.OnlyBankManager.selector);
+        etherPiggyBank.getBalanceByManager(sinc);
+        vm.stopPrank();
+    }
+
+    function testGetBalanceByManagerFailsIfZeroAddress() public {
+        address zero = address(0x0);
+
+        vm.expectRevert(EtherPiggyBank.ZeroAddressNotAllowed.selector);
+        etherPiggyBank.getBalanceByManager(zero);
+    }
 
     function testWithdrawFailsIfNotRegistered() public {}
 
