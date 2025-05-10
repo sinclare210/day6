@@ -195,7 +195,7 @@ contract EtherPiggyBankTest is Test {
         etherPiggyBank.addMember(sinc);
 
         vm.startPrank(sinc);
-            etherPiggyBank.deposit{value: 1 ether}();
+        etherPiggyBank.deposit{value: 1 ether}();
 
         vm.expectRevert(EtherPiggyBank.InsufficientFunds.selector);
         etherPiggyBank.withdraw(1.5 ether);
