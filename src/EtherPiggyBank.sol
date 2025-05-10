@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 contract EtherPiggyBank {
-    address immutable bankManager;
+    address public immutable bankManager;
     address[] private members;
 
     mapping(address => uint256) private balance;
@@ -74,5 +74,9 @@ contract EtherPiggyBank {
 
     function getBalanceByUser() public view returns (uint256) {
         return balance[msg.sender];
+    }
+
+    function isRegistered(address user) public view returns (bool) {
+        return registeredUsers[user];
     }
 }
