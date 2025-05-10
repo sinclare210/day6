@@ -12,7 +12,8 @@ contract EtherPiggyBankTest is Test {
     }
 
     function testConstructorInitializesBankManagerAndRegistersThem() public view {
-        assertEq(etherPiggyBank.bankManager(), address(this));
+        address manager = etherPiggyBank.bankManager();
+        assertEq(manager, address(this));
         assertEq(etherPiggyBank.isRegistered(etherPiggyBank.bankManager()), true);
     }
 
@@ -20,21 +21,44 @@ contract EtherPiggyBankTest is Test {
         address manager = etherPiggyBank.bankManager();
         address sinc = address(0x1);
 
-        vm.startPrank(manager);
         etherPiggyBank.addMember(sinc);
+
         assertEq(etherPiggyBank.isRegistered(sinc), true);
         address[] memory members = etherPiggyBank.getMembers();
         assertEq(members[0], manager);
         assertEq(members[1], sinc);
     }
 
-    function testAddMemberFailsIfZeroAddress() public {}
+    function testAddMemberFailsIfZeroAddress() public {
+        address zero = address(0x0);
+        vm.expectRevert(EtherPiggyBank.ZeroAddressNotAllowed.selector);
+        etherPiggyBank.addMember(zero);
+    }
 
-    function testAddMemberFailsIfAlreadyMember() public {}
+    function testAddMemberFailsIfAlreadyMember() public {
+        address sinc = address(0x1);
 
-    function testAddMemberFailsIfBankManagerAddress() public {}
+        etherPiggyBank.addMember(sinc);
+        vm.expectRevert(EtherPiggyBank.AlreadyMember.selector);
+        etherPiggyBank.addMember(sinc);
+    }
 
-    function testOnlyBankManagerCanAddMember() public {}
+    function testAddMemberFailsIfBankManagerAddress() public {
+        address manager = etherPiggyBank.bankManager();
+
+        vm.expectRevert(EtherPiggyBank.ManagerIsAlreadyMember.selector);
+        etherPiggyBank.addMember(manager);
+    }
+
+    function testOnlyBankManagerCanAddMember() public {
+        address sinc = address(0x1);
+        address impersonate = address(0x2);
+
+        vm.startPrank(impersonate);
+        vm.expectRevert(EtherPiggyBank.OnlyBankManager.selector);
+        etherPiggyBank.addMember(sinc);
+        vm.stopPrank();
+    }
 
     function testDepositFailsIfNotRegistered() public {}
 
