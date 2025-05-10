@@ -9,7 +9,7 @@ contract EtherPiggyBankTest is Test {
     EtherPiggyBank public etherPiggyBank;
 
     function setUp () public {
-        eth
+        
     }
 
 
