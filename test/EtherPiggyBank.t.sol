@@ -4,6 +4,31 @@ pragma solidity ^0.8.19;
 import {Test, console} from "forge-std/Test.sol";
 import {EtherPiggyBank} from "../src/EtherPiggyBank.sol";
 
+contract RevertingReceiver {
+    fallback() external payable {
+        revert("Don't send me ETH");
+    }
+
+    receive() external payable {
+        revert("Don't send me ETH");
+    }
+
+    EtherPiggyBank public bank;
+
+    constructor(address _bank) {
+        bank = EtherPiggyBank(_bank);
+    }
+
+    function depositToBank() external payable {
+        bank.deposit{value: msg.value}();
+    }
+
+    function withdrawFromBank(uint256 amount) external {
+        bank.withdraw(amount);
+    }
+}
+
+
 contract EtherPiggyBankTest is Test {
     EtherPiggyBank public etherPiggyBank;
 
@@ -218,5 +243,26 @@ contract EtherPiggyBankTest is Test {
         vm.stopPrank();
     }
 
-    function testWithdrawRevertsIfTransferFails() public {}
+    function testWithdrawRevertsIfTransferFails() public {
+    // Deploy a malicious contract that rejects Ether
+    RevertingReceiver malicious = new RevertingReceiver(address(etherPiggyBank));
+
+    // Add it as a member
+    etherPiggyBank.addMember(address(malicious));
+
+    // Fund the malicious contract with 1 ether so it can deposit
+    vm.deal(address(malicious), 1 ether);
+
+    // Deposit into the piggy bank from malicious contract
+    vm.startPrank(address(malicious));
+    malicious.depositToBank{value: 1 ether}();
+    vm.stopPrank();
+
+    // Attempt withdrawal, which should revert due to receive() reverting
+    vm.startPrank(address(malicious));
+    vm.expectRevert(EtherPiggyBank.TransferFailed.selector);
+    malicious.withdrawFromBank(1 ether);
+    vm.stopPrank();
+}
+
 }
