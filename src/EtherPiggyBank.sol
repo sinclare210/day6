@@ -3,11 +3,11 @@ pragma solidity ^0.8.19;
 
 contract EtherPiggyBank {
 
-    address bankManager;
-    address[] members;
+    address immutable bankManager;
+    address[] private members;
 
-    mapping(address => uint) balance;
-    mapping(address => bool) registeredUsers;
+    mapping(address => uint) private balance;
+    mapping(address => bool) private registeredUsers;
 
     // Custom errors
     error OnlyBankManager();
@@ -35,8 +35,9 @@ contract EtherPiggyBank {
         _;
     }
 
-    function deposit() public payable {
-        // Optionally leave this or remove if unused
+    function deposit() public payable onlyRegisteredMember {
+        if (msg.value == 0) revert AmountMustBeGreaterThanZero();
+        balance[msg.sender] += msg.value;
     }
 
     function addMember(address addy) public onlyBankManager {
@@ -52,7 +53,7 @@ contract EtherPiggyBank {
         return members;
     }
 
-    function depositAmount() public onlyRegisteredMember payable {
+    function depositAmount() public payable onlyRegisteredMember {
         if (msg.value == 0) revert AmountMustBeGreaterThanZero();
         balance[msg.sender] += msg.value;
     }
@@ -63,7 +64,6 @@ contract EtherPiggyBank {
     }
 
     function withdraw(uint256 _amount) public onlyRegisteredMember {
-        if (msg.sender == address(0)) revert ZeroAddressNotAllowed();
         if (_amount == 0) revert AmountMustBeGreaterThanZero();
         if (_amount > balance[msg.sender]) revert InsufficientFunds();
 
@@ -74,7 +74,6 @@ contract EtherPiggyBank {
     }
 
     function getBalanceByUser() public view returns (uint256) {
-        if (msg.sender == address(0)) revert ZeroAddressNotAllowed();
         return balance[msg.sender];
     }
 }
