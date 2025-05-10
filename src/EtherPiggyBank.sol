@@ -58,7 +58,9 @@ contract EtherPiggyBank {
 
     function withdraw (uint256 _amount) public onlyRegisteredMember {
         require(msg.sender != address(0), "Address zero not allowed");
-        
+        (bool success, ) = msg.sender.call{value: _amount}("");
+        require(success, "Failed");
+
     }
 
     function getBalanceByUser () public view returns (uint256){
