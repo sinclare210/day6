@@ -2,11 +2,10 @@
 pragma solidity ^0.8.19;
 
 contract EtherPiggyBank {
-
     address immutable bankManager;
     address[] private members;
 
-    mapping(address => uint) private balance;
+    mapping(address => uint256) private balance;
     mapping(address => bool) private registeredUsers;
 
     // Custom errors
@@ -67,7 +66,7 @@ contract EtherPiggyBank {
         if (_amount == 0) revert AmountMustBeGreaterThanZero();
         if (_amount > balance[msg.sender]) revert InsufficientFunds();
 
-        (bool success, ) = msg.sender.call{value: _amount}("");
+        (bool success,) = msg.sender.call{value: _amount}("");
         if (!success) revert TransferFailed();
 
         balance[msg.sender] -= _amount;
