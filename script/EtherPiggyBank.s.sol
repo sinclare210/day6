@@ -14,7 +14,9 @@ contract EtherPiggyBankScript is Script {
 
     function run () public {
         vm.startBroadcast();
+
         etherPiggyBank = new EtherPiggyBank();
+        
         vm.stopBroadcast();
     }
 }
